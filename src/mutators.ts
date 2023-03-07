@@ -56,6 +56,6 @@ export const mutators = {
     // This shouldn't be necessary, but Reflect doesn't send initial snapshot
     // until first mutation. Bug: https://github.com/rocicorp/reflect-server/issues/146.
     await tx.put("init", true);
-    console.log("INITIALIZED")
+    console.log("init mutator", tx.clientID)
   },
 };

@@ -23,7 +23,20 @@ const App = ({ reflect, userID, roomID }: { reflect: Reflect<M> }) => {
   useEffect(() => {
     void (async() => {
       await reflect.mutate.init();
-      console.log("entries original reflect", await reflect.query(tx => tx.scan().entries().toArray()))
+
+      const newId = nanoid();
+      
+      let entries = await reflect.query(tx => tx.scan().values().toArray())
+      console.log("entries in 1st reflect", entries.length, entries.find(e => e.id == newId))
+
+      await reflect.mutate.createTodo({
+        id: newId,
+        text: "hello world",
+        completed: false,
+      });
+
+      entries = await reflect.query(tx => tx.scan().values().toArray())
+      console.log("entries in 1st reflect", entries.length, entries.find(e => e.id == newId))
 
       const r = new Reflect({
         socketOrigin,
@@ -33,16 +46,8 @@ const App = ({ reflect, userID, roomID }: { reflect: Reflect<M> }) => {
         mutators,
       });
 
-      console.log("entries second reflect", await r.query(tx => tx.scan().entries().toArray()))
-
-      r.subscribe(
-        async tx => await tx.scan().entries().toArray(), 
-        {
-          onData(result) {
-            console.log("second subscribe", result)
-          }
-        }
-      )
+      entries = await r.query(tx => tx.scan().values().toArray())
+      console.log("entries in 2nd reflect", entries.length, entries.find(e => e.id == newId))
     })();
   }, [])
 
